@@ -1,0 +1,1 @@
+The contract names are just for fun, I am not planning on writing rugpulls
