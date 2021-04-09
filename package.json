@@ -1,8 +1,8 @@
 {
   "name": "railroad",
   "version": "1.0.0",
-  "description": "xDai-Eth cargo service",
-  "repository": "0",
+  "description": "",
+  "repository": "https://github.com/Encrobaser/railroad",
   "author": "Encrobaser",
   "license": "MIT",
   "private": true,
