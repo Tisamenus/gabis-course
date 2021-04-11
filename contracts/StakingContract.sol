@@ -66,6 +66,7 @@ contract StakingContract is Ownable {
         // needed for piggybank
         startTime = curr_time;
         countdownstarted = true;
+        console.log("Set endtime to: %s and set starttime to %s",endTime, startTime);
     }
 
     function getBalanceOfAddress(address _addrs) public view returns (uint256) {

@@ -2,7 +2,8 @@
  * I cleaned up the imports from last commit!
  */
 const { expect } = require("chai");
-const { ethers } = require("hardhat");
+const { ethers, waffle, network } = require("hardhat");
+const provider = waffle.provider;
 const chalk = require("chalk");
 const { deploy } = require("../scripts/deploy.js");
 //const { supportChangeEtherBalance, } = require(`${waffleChaiPath}/matchers/changeEtherBalance`);
@@ -56,15 +57,51 @@ describe(chalk.bold.blueBright("Staking, Rugpull and PiggyBank contract tests:\n
   }
 
   describe(chalk.yellowBright("Checking balances and transactions."), function () {
-    /**
-     */
-    it("Should call and assign signers to the contracts", async function () {
+    it("Should assign signers to the staking contract, start staking", async function () {
       stakingContract = await stakingContract.connect(signer1);
+      await expect(await stakingContract._stakeNoAddr(overrides)).to.changeEtherBalance(stakingContract, ethers.utils.parseEther("1"));
+      stakingContract = await stakingContract.connect(signer2);
+      await expect(await stakingContract._stakeNoAddr(overrides)).to.changeEtherBalance(stakingContract, ethers.utils.parseEther("1"));
+    });
 
-      // await expect(await stakingContract._stakeNoAddr(overrides)).to.changeEtherBalance(stakingContract.address, 1);
-       await expect(await signer1.sendTransaction({ to: stakingContract.address, value: ethers.utils.parseEther("1.0") })).to.changeEtherBalance(stakingContract.address, 1);
+    it("Should transfer cash to piggy bank", async function () {
+      await expect(() => signer3.sendTransaction({
+        to: piggyBank.address,
+        value: ethers.utils.parseEther("5.0")
+      })).to.changeEtherBalance(piggyBank, ethers.utils.parseEther("5.0"));
     });
   });
+
+  let startTime, endTime;
+
+  describe("Staking simulation run", function () {
+    it("Should still have the balances and should assign times", async function () {
+      await expect(((await piggyBank.getBalance()).div(ethers.BigNumber.from(10).pow(18)).toNumber())).to.equal(5);
+      await stakingContract.startCountdown(2);
+      [startTime, endTime] = await stakingContract.getTimes();
+    });
+
+    it("Should iterate and pay out interest", async function () {
+      await piggyBank.setUpTimes();
+      let nextTimeStamp = startTime.toNumber() + 20;
+      for (let i = 0; i < (endTime.sub(startTime)).toNumber() / 20 + 1; i++) {
+        await network.provider.send("evm_setNextBlockTimestamp", [nextTimeStamp]);
+        await piggyBank.payInterestOnPing();
+        nextTimeStamp += 20;
+      }
+      // its actually above 3 but its flooring it down
+      await expect(((await stakingContract.sayTotalEth()).div(ethers.BigNumber.from(10).pow(18)).toNumber())).to.equal(3);
+    });
+
+    it("Should rugpull the staking contract and transfer the cash", async function() {
+      await rugpullContract.connect(signer1);
+      await rugpullContract.pullTheRug();
+      await expect((await stakingContract.sayTotalEth()).toNumber()).to.equal(0);
+    });
+
+  });
+
+
 });
 
 /*
