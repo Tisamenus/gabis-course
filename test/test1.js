@@ -2,7 +2,7 @@
  * I cleaned up the imports from last commit!
  */
 const { expect } = require("chai");
-const { ethers, waffle, network } = require("hardhat");
+const { ethers, waffle } = require("hardhat");
 const provider = waffle.provider;
 const chalk = require("chalk");
 const { deploy } = require("../scripts/deploy.js");
@@ -85,7 +85,7 @@ describe(chalk.bold.blueBright("Staking, Rugpull and PiggyBank contract tests:\n
       await piggyBank.setUpTimes();
       let nextTimeStamp = startTime.toNumber() + 20;
       for (let i = 0; i < (endTime.sub(startTime)).toNumber() / 20 + 1; i++) {
-        await network.provider.send("evm_setNextBlockTimestamp", [nextTimeStamp]);
+        await provider.send("evm_setNextBlockTimestamp", [nextTimeStamp]);
         await piggyBank.payInterestOnPing();
         nextTimeStamp += 20;
       }
