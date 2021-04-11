@@ -1,5 +1,5 @@
 {
-  "name": "railroad",
+  "name": "testrepo",
   "version": "1.0.0",
   "description": "",
   "repository": "https://github.com/Encrobaser/railroad",
@@ -22,6 +22,8 @@
   },
   "scripts": {
     "test": "hardhat test --network hardhat",
+    "ritest": "hardhat test --network rinkeby",
+    "fordai": "node libraryscripts/fordai.js",
     "chain": "hardhat node",
     "compile": "hardhat compile",
     "deploy": "hardhat run ./scripts/deploy.js"

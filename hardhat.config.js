@@ -261,12 +261,12 @@ task("send", "Send ETH")
 
 module.exports = {
   solidity: "0.8.1",
-  defaultNetwork: "hardhat",
   networks: {
-    hardhat: {},
-    ropsten: {
+    hardhat: {
+    },
+    rinkeby: {
       url: process.env.INFURA_RINKEBY,
-      accounts: [process.env.IDENTITETK]
+      accounts: [process.env.IDENTITETK],
     }
   }
 };
