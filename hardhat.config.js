@@ -2,8 +2,11 @@ require("@nomiclabs/hardhat-ethers");
 require("@nomiclabs/hardhat-waffle");
 require("@tenderly/hardhat-tenderly");
 require("@nomiclabs/hardhat-etherscan");
+require('dotenv').config();
 const fs = require("fs");
 const chalk = require("chalk");
+
+const DEBUG = false;
 
 task("wallet", "Create a wallet (pk) link", async (_, { ethers }) => {
   const randomWallet = ethers.Wallet.createRandom()
@@ -257,6 +260,14 @@ task("send", "Send ETH")
 
 
 module.exports = {
-  solidity: "0.8.1"
+  solidity: "0.8.1",
+  defaultNetwork: "hardhat",
+  networks: {
+    hardhat: {},
+    ropsten: {
+      url: process.env.INFURA_RINKEBY,
+      accounts: [process.env.IDENTITETK]
+    }
+  }
 };
 
