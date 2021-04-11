@@ -109,8 +109,8 @@
       ]
     },
     "/mnt/c/degenian/realprojects/railroad/contracts/StakingContract.sol": {
-      "lastModificationDate": 1617925349580,
-      "contentHash": "1f3985b4d45446671b0dc60d53ade4c3",
+      "lastModificationDate": 1618092274762,
+      "contentHash": "1c47c45d599b7c2eddf5adcad1ac3487",
       "sourceName": "contracts/StakingContract.sol",
       "solcConfig": {
         "version": "0.8.1",
