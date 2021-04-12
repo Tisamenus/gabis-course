@@ -265,8 +265,6 @@ task("send", "Send ETH")
 
 async function gBal(address, block, provider) {
 
-  console.log("here");
-  console.log(provider);
   const result = await provider.request({
     method: "eth_getBalance",
     params: [
@@ -283,10 +281,10 @@ task("bal", "Get balance")
   .addParam("blk", "What time?")
   .setAction(async (taskArgs, { network }) => {
 
-    const balance = await gBal(taskArgs.address, taskArgs.block, network.provider);
+    const balance = await gBal(taskArgs.adr, taskArgs.blk, network.provider);
 
     console.log(
-        chalk.yellowBright.bold(`\nBalance of ${taskArgs.address}:\n${balance}\n`)
+        chalk.yellowBright.bold(`\nBalance of ${taskArgs.adr}:\n${balance}\n`)
     )
 
   });
