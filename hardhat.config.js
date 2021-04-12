@@ -266,7 +266,11 @@ module.exports = {
     },
     rinkeby: {
       url: process.env.INFURA_RINKEBY,
-      accounts: [process.env.IDENTITETK],
+      accounts: [process.env.IDENTITETK]
+    },
+    xdai: {
+      url: process.env.XDAI_RPC1,
+      accounts: [process.env.IDENTITETK]
     }
   }
 };
