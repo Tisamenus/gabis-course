@@ -258,6 +258,39 @@ task("send", "Send ETH")
     return send(fromSigner, txRequest);
   });
 
+/**
+ * most of the above is from austin
+ * below is mine
+ */
+
+async function gBal(address, block, provider) {
+
+  console.log("here");
+  console.log(provider);
+  const result = await provider.request({
+    method: "eth_getBalance",
+    params: [
+      `${address}`,
+      `${block}`
+    ]
+  });
+
+  return result;
+}
+
+task("bal", "Get balance")
+  .addParam("adr", "Addr to check")
+  .addParam("blk", "What time?")
+  .setAction(async (taskArgs, { network }) => {
+
+    const balance = await gBal(taskArgs.address, taskArgs.block, network.provider);
+
+    console.log(
+        chalk.yellowBright.bold(`\nBalance of ${taskArgs.address}:\n${balance}\n`)
+    )
+
+  });
+
 
 module.exports = {
   solidity: "0.8.1",

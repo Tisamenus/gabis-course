@@ -27,6 +27,7 @@
     "chain": "hardhat node",
     "compile": "hardhat compile",
     "deploy": "hardhat run ./scripts/deploy.js",
-    "xhc": "hardhat console --network xdai"
+    "xhc": "hardhat console --network xdai",
+    "xbal": "node libraryscripts/xbalance.js"
   }
 }
