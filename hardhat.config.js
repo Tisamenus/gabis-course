@@ -284,9 +284,29 @@ task("bal", "Get balance")
     const balance = await gBal(taskArgs.adr, taskArgs.blk, network.provider);
 
     console.log(
-        chalk.yellowBright.bold(`\nBalance of ${taskArgs.adr}:\n${balance}\n`)
+      chalk.yellowBright.bold(`\nBalance of ${taskArgs.adr}:\n${balance}\n`)
     )
 
+  });
+
+task("iterateBlocks", "Iterate through blocks of a blockchain")
+  .addPositionalParam("from", "index of first")
+  .addPositionalParam("to", "index or just 'latest'")
+  .setAction(async (taskArgs, { network }) => {
+
+    let from = parseInt(taskArgs.from, 10),
+      to = (taskArgs.to == "latest") ? parseInt((await network.provider.request({ method: "eth_blockNumber", params: [] })), 16) : parseInt(taskArgs.to, 10);
+
+    for (let i = from; i <= to; i++) {
+      console.log(await network.provider.request({
+        method: "eth_getBlockByNumber",
+        params: [
+          ("0x" + i.toString(16)),
+          false
+        ]
+      }));
+
+    }
   });
 
 
@@ -301,6 +321,10 @@ module.exports = {
     },
     xdai: {
       url: process.env.XDAI_RPC1,
+      accounts: [process.env.IDENTITETK]
+    },
+    mainnet: {
+      url: process.env.INFURA_MAINNET,
       accounts: [process.env.IDENTITETK]
     }
   }
