@@ -2,11 +2,24 @@ require("@nomiclabs/hardhat-ethers");
 require("@nomiclabs/hardhat-waffle");
 require("@tenderly/hardhat-tenderly");
 require("@nomiclabs/hardhat-etherscan");
+//////////////////// other stuff
 require('dotenv').config();
 const fs = require("fs");
 const chalk = require("chalk");
+const readline = require("readline");
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
+function question(query) {
+  return new Promise(resolve => {
+    rl.question(query, resolve);
+  });
+}
 
 const DEBUG = false;
+
 
 task("wallet", "Create a wallet (pk) link", async (_, { ethers }) => {
   const randomWallet = ethers.Wallet.createRandom()
@@ -276,6 +289,10 @@ async function gBal(address, block, provider) {
   return result;
 }
 
+/**
+ * get your balance on any network
+ */
+
 task("bal", "Get balance")
   .addParam("adr", "Addr to check")
   .addParam("blk", "What time?")
@@ -288,6 +305,10 @@ task("bal", "Get balance")
     )
 
   });
+
+/**
+ * sample where you can pull blocks from-to
+ */
 
 task("iterateBlocks", "Iterate through blocks of a blockchain")
   .addPositionalParam("from", "index of first")
@@ -308,6 +329,43 @@ task("iterateBlocks", "Iterate through blocks of a blockchain")
 
     }
   });
+
+task("getAnyTxFromLatestBlock", "simple way to fetch some recent tx", async (_, { network }) => {
+
+  // latestBlock with  tx hashes
+  let latestBlock = await network.provider.request({ method: "eth_getBlockByNumber", params: ["latest", false] });
+
+  if (latestBlock.transactions.length === 0) {
+    for (let i = parseInt(latestBlock.number.slice(2), 16) - 1; latestBlock.transactions.length === 0; i--) {
+      latestBlock = await network.provider.request({ method: "eth_getBlockByNumber", params: [("0x" + i.toString(16)), true] });
+    }
+  }
+
+  console.log(latestBlock.transactions);
+
+  let index = await question('Choose tx!\n');
+
+  console.log(await network.provider.request({
+    method: "eth_getTransactionByBlockNumberAndIndex",
+    params: [
+      latestBlock.number,
+      ("0x" + index.toString(16))
+    ]
+  }));
+});
+
+
+/**
+ * 
+ */
+
+//task("allAddressesThatOwn", "find all accounts AND contracts that hold some coin")
+//  .addPositionalParam("address", "which coin??")
+//  .setAction(async (address, { network }) => {
+//
+//
+//  });
+
 
 
 module.exports = {
