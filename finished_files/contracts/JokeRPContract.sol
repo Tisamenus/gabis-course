@@ -10,7 +10,7 @@ interface ISTK {
     function pullrug() external;
 }
 
-contract RugPullContract is Ownable {
+contract JokeRPContract is Ownable {
     ISTK private contractToPull;
 
     constructor() public {}

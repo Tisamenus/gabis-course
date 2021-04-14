@@ -8,8 +8,8 @@ const fs = require("fs");
 const chalk = require("chalk");
 const readline = require("readline");
 const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
+  input: process.stdin,
+  output: process.stdout
 });
 
 function question(query) {
@@ -326,8 +326,8 @@ task("iterateBlocks", "Iterate through blocks of a blockchain")
           false
         ]
       }));
-
     }
+
   });
 
 task("getAnyTxFromLatestBlock", "simple way to fetch some recent tx", async (_, { network }) => {
@@ -337,7 +337,7 @@ task("getAnyTxFromLatestBlock", "simple way to fetch some recent tx", async (_, 
 
   if (latestBlock.transactions.length === 0) {
     for (let i = parseInt(latestBlock.number.slice(2), 16) - 1; latestBlock.transactions.length === 0; i--) {
-      latestBlock = await network.provider.request({ method: "eth_getBlockByNumber", params: [("0x" + i.toString(16)), true] });
+      latestBlock = await network.provider.request({ method: "eth_getBlockByNumber", params: [("0x" + i.toString(16)), false] });
     }
   }
 
@@ -354,6 +354,37 @@ task("getAnyTxFromLatestBlock", "simple way to fetch some recent tx", async (_, 
   }));
 });
 
+task("accountsThatHoldCoin", "gotta catch em all")
+  .addPositionalParam("address", "coin address")
+  .addPositionalParam("from", "index of first")
+  .addPositionalParam("to", "index or just 'latest'")
+  .setAction(async (taskArgs, { network }) => {
+
+
+    let from = parseInt(taskArgs.from, 10),
+      to = (taskArgs.to == "latest") ? parseInt((await network.provider.request({ method: "eth_blockNumber", params: [] })), 16) : parseInt(taskArgs.to, 10);
+
+    let coin = taskArgs.address;
+    let owners = [];
+
+    let currentBlock;
+
+    for(let i = from; i <= to; i++) {
+      currentBlock = await network.provider.request({ method: "eth_getBlockByNumber", params: [("0x" + i.toString(16)), true]});
+
+      for(let j = 0; j < currentBlock.transactions.length; j++) {
+        
+        if(currentBlock.transactions[j].to == coin) {
+
+        }
+
+
+      }
+    }
+
+
+
+  });
 
 /**
  * 
