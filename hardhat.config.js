@@ -354,6 +354,13 @@ task("getAnyTxFromLatestBlock", "simple way to fetch some recent tx", async (_, 
   }));
 });
 
+
+/**
+ * This is actually easier than iterating the blockchain
+ * in essence, you just have to construct the filter object properly
+ * which is thereafter used to just call the function that fetches everything for u
+ */
+
 task("accountsThatHoldCoin", "gotta catch em all")
   .addPositionalParam("address", "coin address")
   .addPositionalParam("from", "index of first")
@@ -365,26 +372,79 @@ task("accountsThatHoldCoin", "gotta catch em all")
       to = (taskArgs.to == "latest") ? parseInt((await network.provider.request({ method: "eth_blockNumber", params: [] })), 16) : parseInt(taskArgs.to, 10);
 
     let coin = taskArgs.address;
-    let owners = [];
 
-    let currentBlock;
+    let filter;
 
-    for(let i = from; i <= to; i++) {
-      currentBlock = await network.provider.request({ method: "eth_getBlockByNumber", params: [("0x" + i.toString(16)), true]});
+    //    try {
+    //
+    //    filter = await network.provider.request({
+    //      method: "eth_newFilter",
+    //      params: [{
+    //        fromBlock: ("0x" + from.toString(16)), //from block
+    //        toBlock: ("0x" + to.toString(16)), //to block
+    //        address: coin, //addr
+    //        topics: ["0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"] 
+    //      }]
+    //    });
+    //
+    //  } catch (e) {
+    //    console.log("here");
+    //  }
+    //   ^^^^^^ idk why the above doesn't work, don't care since the below works fine perfectly _______
+    let logs = await network.provider.request({
+      method: "eth_getLogs",
+      params: [{
+        fromBlock: ("0x" + from.toString(16)), //from block
+        toBlock: ("0x" + to.toString(16)), //to block
+        address: coin, //addr
+        topics: ["0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"] // we are putting in here the keccak256 hash of the transfer event ddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef  + 0x, which is a classic
+      }]
+    });
 
-      for(let j = 0; j < currentBlock.transactions.length; j++) {
-        
-        if(currentBlock.transactions[j].to == coin) {
+    let coinHolderAddresses = [];
 
+    for (let i = 0; i < logs.length; i++) {
+      for (let j = 1; j < 3; j++) {
+        if (!coinHolderAddresses.includes(logs[i].topics[j])) {
+          let check = await network.provider.request({
+            method: "eth_call",
+            params: [{
+              to: coin,
+              data: ("0x70a08231" + "000000000000000000000000" + logs[i].topics[j].slice(26))
+            }]
+          });
+          /**
+           * just saw that with parseInt u need not slice(2) it checks for 0x auto
+           */
+
+          check = parseInt(check);
+          if (check > 0) {
+            coinHolderAddresses.push(logs[i].topics[j]);
+          }
         }
-
-
       }
     }
 
-
+    console.log(coinHolderAddresses);
 
   });
+
+task("testMeth", "test the meth").addPositionalParam("to").addPositionalParam("data").setAction(async (taskArgs, { network }) => {
+
+  /**
+   * example : yarn hardhat testMeth 71850b7E9Ee3f13Ab46d67167341E4bDc905Eef9 0x70a0823100000000000000000000000064B29D930BA46aB7f55505f178896d16244c5922 --network xdai
+   * abi spec: https://docs.soliditylang.org/en/latest/abi-spec.html
+   */
+
+  console.log(await network.provider.request({
+    method: "eth_call",
+    params: [{
+      to: taskArgs.to,
+      data: taskArgs.data
+    }]
+  }));
+
+});
 
 /**
  * 
